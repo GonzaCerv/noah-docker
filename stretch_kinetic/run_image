@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+source vars.cfg
+docker_ws="/home/docker/ws"
+
+# Get current directory, no matter from where the script is called
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+repo_dir="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+echo "${repo_dir}"
+
+XAUTH=/tmp/.docker.xauth
+if [ ! -f $XAUTH ]
+then
+    xauth_list=$(xauth nlist :0 | sed -e 's/^..../ffff/')
+    if [ ! -z "$xauth_list" ]
+    then
+        echo $xauth_list | xauth -f $XAUTH nmerge -
+    else
+        touch $XAUTH
+    fi
+    chmod a+r $XAUTH
+fi
+
+DOCKER_MOUNT_ARGS="\
+    -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+    -v ${REPO_DIR}:/catkin_ws/src/Noah"
+
+
+DOCKER_CAPABILITIES="--ipc=host \
+                     --cap-add=IPC_LOCK \
+                     --cap-add=sys_nice \
+                     -p 5901:5901"
+
+DOCKER_NETWORK="--net=host"
+# Start Docker container
+xhost +local:root
+docker run -it --rm \
+    --name ${container_name} \
+    -e DISPLAY \
+    -e XAUTHORITY=$XAUTH \
+    -v "$XAUTH:$XAUTH" \
+    -v "/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+    -v "/dev/input:/dev/input" \
+    -v "/etc/localtime:/etc/localtime:ro" \
+    --volume="${repo_dir}/../../:${docker_ws}/src/:rw" \
+    ${DOCKER_MOUNT_ARGS} \
+    -v /etc/fstab:/etc/fstab:ro \
+    ${GRAPHICS_FLAG} \
+	${DOCKER_NETWORK} \
+    --privileged \
+    --security-opt seccomp=unconfined \
+    --runtime=nvidia \
+    --user=docker \
+    -w /home/docker/ws \
+    ${image_name} \
+    bash
+xhost -local:root

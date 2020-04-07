@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+source /opt/ros/kinetic/setup.bash
+
+sudo apt-get update
+
+# Create a tmux session and start a socat port
+# Serial ports created are /dev/pts/2 and /dev/pts/3
+tmux new-session -d -s socat_virtual_ports 'socat -d -d pty,raw,echo=0 pty,raw,echo=0'
+
+rosdep install --from-paths src --ignore-src --rosdistro ${ROS_DISTRO} --os=debian:stretch -r -y --as-root pip:no --skip-keys="gazebo"
+
+catkin_make
