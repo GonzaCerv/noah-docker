@@ -18,6 +18,8 @@ RUN apt-get update && apt-get install -y \
       nano \
       socat \
       unzip \
+      xvfb \
+      x11vnc \
       && apt-get clean
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
@@ -27,6 +29,9 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 ENV LANG en_US.UTF-8 
 ENV TZ=America/Argentina/Cordoba
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# Set display
+ENV DISPLAY :0
 
 # Set user
 ARG USERNAME=docker
@@ -48,7 +53,8 @@ RUN apt-get update &&  apt-get upgrade -y  && apt-get install -y \
   build-essential \
   cmake \
   libxmlrpcpp-dev \ 
-  librosconsole-dev 
+  librosconsole-dev \
+  ros-melodic-rqt-robot-steering
 
   USER docker
   RUN rosdep update
@@ -65,8 +71,8 @@ RUN cd libserial/ &&  ./compile.sh && cd build/ && make install
 USER docker
 # Source ROS
 RUN echo 'source /opt/ros/melodic/setup.bash' >> ~/.bashrc
-USER docker
 
 # Extra configurations
 RUN mkdir -p /home/docker/noah_ws/src
 EXPOSE 11345
+
