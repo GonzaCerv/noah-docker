@@ -54,7 +54,7 @@ RUN apt-get update &&  apt-get upgrade -y  && apt-get install -y \
   cmake \
   libxmlrpcpp-dev \ 
   librosconsole-dev \
-  ros-melodic-rqt-robot-steering
+  ros-melodic-teleop-twist-keyboard
 
   USER docker
   RUN rosdep update
