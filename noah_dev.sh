@@ -96,6 +96,7 @@ run_image() {
             --env="DISPLAY=$DISPLAY" \
             -v "/etc/localtime:/etc/localtime:ro" \
             --volume="${repo_dir}/../../:${docker_ws}/src/:rw" \
+            --user=docker \
             -w /home/docker/noah_ws \
             -it ${IMAGE_NAME}
         xhost -

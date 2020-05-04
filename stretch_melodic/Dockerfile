@@ -68,6 +68,7 @@ RUN apt-get install -y \
   python3-sphinx-rtd-theme
 RUN git clone https://github.com/crayzeewulf/libserial.git
 RUN cd libserial/ &&  ./compile.sh && cd build/ && make install
+RUN usermod -a -G dialout docker
 USER docker
 # Source ROS
 RUN echo 'source /opt/ros/melodic/setup.bash' >> ~/.bashrc
