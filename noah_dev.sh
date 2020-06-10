@@ -7,39 +7,38 @@
 
 ###### Configuration of arguments. ######
 OPTIND=1
-ADDITIONAL_DOCKER_ARGS=""
 DOCKER_ARGS_OPT=""
 reset_options="--no-cache"
 build_options="--force-rm --build-arg UID=$(id -u) --build-arg GID=$(id -g)"
 directory="stretch_melodic"
-docker_ws="/home/docker/noah_ws"
+docker_ws="/home/ubuntu/noah_ws"
 #Source the configurations of the image
 source $directory/vars.cfg
 
 ##### Definition of methods ########
 
 #Deletes an existing image if exists
-delete_image() {
-    if [[ "$(docker images -q $IMAGE_NAME 2>/dev/null)" != "" ]]; then
-        echo "Deleting existing image" 1>&2
-        docker image rm $IMAGE_NAME
-    fi
-}
+# delete_image() {
+#     if [[ "$(docker images -q $IMAGE_NAME 2>/dev/null)" != "" ]]; then
+#         echo "Deleting existing image" 1>&2
+#         docker image rm $IMAGE_NAME
+#     fi
+# }
 
-#Builds the new image
-build_image() {
-    # Build docker image if not image found
-    if [[ "$(docker images -q $IMAGE_NAME 2>/dev/null)" == "" ]]; then
-        if uname --m | grep 'x86_64' >/dev/null 2>&1; then
-            echo "building for x86_64" 1>&2
-            ARCH="x86_64"
-        else
-            echo "building for ARM" 1>&2
-            ARCH="ARM"
-        fi
-        docker build $BUILD_ARGS $DOCKER_ARGS_OPT --tag $IMAGE_NAME "$directory"
-    fi
-}
+# #Builds the new image
+# build_image() {
+#     # Build docker image if not image found
+#     if [[ "$(docker images -q $IMAGE_NAME 2>/dev/null)" == "" ]]; then
+#         if uname --m | grep 'x86_64' >/dev/null 2>&1; then
+#             echo "building for x86_64" 1>&2
+#             ARCH="x86_64"
+#         else
+#             echo "building for ARM" 1>&2
+#             ARCH="ARM"
+#         fi
+#         docker build $BUILD_ARGS $DOCKER_ARGS_OPT --tag $IMAGE_NAME "$directory"
+#     fi
+# }
 
 #Runs the current image
 run_image() {
@@ -56,20 +55,20 @@ run_image() {
 
         echo "${repo_dir}"
 
-        XAUTH=/tmp/.docker.xauth
-        if [ ! -f $XAUTH ]; then
-            xauth_list=$(xauth nlist :0 | sed -e 's/^..../ffff/')
-            if [ ! -z "$xauth_list" ]; then
-                echo $xauth_list | xauth -f $XAUTH nmerge -
-            else
-                touch $XAUTH
-            fi
-            chmod a+r $XAUTH
-        fi
+        # XAUTH=/tmp/.docker.xauth
+        # if [ ! -f $XAUTH ]; then
+        #     xauth_list=$(xauth nlist :0 | sed -e 's/^..../ffff/')
+        #     if [ ! -z "$xauth_list" ]; then
+        #         echo $xauth_list | xauth -f $XAUTH nmerge -
+        #     else
+        #         touch $XAUTH
+        #     fi
+        #     chmod a+r $XAUTH
+        # fi
 
         DOCKER_MOUNT_ARGS="\
         -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-        -v ${REPO_DIR}:/catkin_ws/src/Noah"
+        -v ${REPO_DIR}:/catkin_ws/src"
 
         DOCKER_CAPABILITIES="--ipc=host \
         --cap-add=IPC_LOCK \
@@ -79,8 +78,9 @@ run_image() {
         # if using nvidia, automatically select that image
         GRAPHICS_FLAG="--device=/dev/dri:/dev/dri"
         if [[ $IMAGE_NAME = *"nvidia"* ]]; then
-            GRAPHICS_FLAG= " --runtime=nvidia"
+            GRAPHICS_FLAG="--runtime=nvidia"
         fi
+        GRAPHICS_FLAG="--runtime=nvidia"
 
         DOCKER_NETWORK="--net=host"
         # Start Docker container
@@ -90,16 +90,18 @@ run_image() {
             ${DOCKER_MOUNT_ARGS} \
             -v /etc/fstab:/etc/fstab:ro \
             -e ROS_HOSTNAME=localhost \
+            -e ROS_MASTER_URI=http://192.168.1.194:11311 \
             ${GRAPHICS_FLAG} \
             ${DOCKER_NETWORK} \
             ${ADDITIONAL_DOCKER_ARGS} \
             --env="DISPLAY=$DISPLAY" \
             -v "/etc/localtime:/etc/localtime:ro" \
             --volume="${repo_dir}/../../:${docker_ws}/src/:rw" \
-            --user=docker \
-            -w /home/docker/noah_ws \
+            --user=ubuntu \
+            -w /home/ubuntu/noah_ws \
             -it ${IMAGE_NAME}
         xhost -
+
 
     else
         echo "No image found!" 1>&2
@@ -117,17 +119,17 @@ while getopts ":adbrz" option; do
         attach_image
         ;;
     d)
-        delete_image
+        # delete_image
         ;;
     b)
-        build_image
+        # build_image
         ;;
     r)
         run_image
         ;;
     z)
-        delete_image
-        build_image
+        # delete_image
+        # build_image
         run_image
         ;;
     \?)
@@ -141,7 +143,7 @@ if (($OPTIND == 1)); then
     echo "Automatic mode" >&2
     if [[ "$(docker images -q $IMAGE_NAME 2>/dev/null)" == "" ]]; then
         echo "action: build image" >&2
-        build_image
+        # build_image
         run_image
     elif [[ "$(docker container ls | grep $IMAGE_NAME 2>/dev/null)" != "" ]]; then
         echo "action: attach to container" >&2
