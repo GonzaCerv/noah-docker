@@ -16,28 +16,72 @@
 
 ##  Table of Contents
 
-- [About](#about)
-- [Prerequisites](#Prerequisites)
-- [Usage](#usage)
-- [TODO](#todo)
-- [Authors](#authors)
+- [Table of Contents](#table-of-contents)
+- [About <a name = "about"></a>](#about)
+- [Main Features <a name = "about"></a>](#main-features)
+- [Prerequisites <a name="prerequisites"></a>](#prerequisites)
+- [Usage <a name="usage"></a>](#usage)
+  - [How to choose the ROS metapackage <a name="how-to-choose-the-ros-metapackage"></a>](#how-to-choose-the-ros-metapackage)
+  - [Automatic mode <a name="automatic-mode"></a>](#automatic-mode)
+  - [Manual mode <a name="automatic_mode"></a>](#manual-mode)
+- [Tested on <a name="tested"></a>](#tested-on)
+- [Authors <a name="authors"></a>](#authors)
 
-## :page_facing_up: About <a name = "about"></a>
+## About <a name = "about"></a>
 
-This repo stores the Docker container for Noah robot. This image is based on the [ROS melodic-robot](https://hub.docker.com/_/ros?tab=description) provided by OSRF. The image is able to run on ARMv7, ARMv8 and AMD64. This is perfect to build and test your project in your linux PC and then port it into an SBC such as Raspberry PI. 
+This repo stores the Docker container for Noah robot. This image runs ubuntu 18.04 and comes with ROS Melodic installed. The image is able to run on ARMv7, ARMv8 and X86_64. This is perfect to build and test your project in your linux PC and then port it into an SBC such as Raspberry PI or Jetson nano. The container is based on two images. One is the **base_image**, whose Dockerfile has the basic configurations for the container. On top of that it builds the **ros_image** which can be ROS robot or desktop full.
 
-## :hammer: Prerequisites
+## Main Features <a name = "about"></a>
 
-Docker needs to be installed
+- Runs on ARMv7, ARMv8 and x86_64
+- Ubuntu 18.04
+- ROS Melodic (Robot and Full metapackage)
+- CUDA enabled (for Nvidia containers)
+- [libserial](https://github.com/crayzeewulf/libserial)
+- Integrated and Nvidia GPU support for ARM and x86_64
+- SSH enabled
+- Automated script for easy use
 
-## 📝 Usage <a name="usage"></a>
+## Prerequisites <a name="prerequisites"></a>
+
+- Docker needs to be installed
+  
+  If you want to use a Nvidia container:
+- Nvidia container Toolkit
+- CUDA drivers intalled
+
+## Usage <a name="usage"></a>
 
 In order to start the docker container, you must run the noah_dev.sh script. The script can run manually or it can automatically detect your intentions and run autonomously.  
 
-- To run autonomous mode, you need to run the script withouth parameters. The script will detect check if there is an image created with the same characteristics as the Dockerfile. If there is an existing image of Docker, it will try to start that image. In the last case, if an image is created and its container is running, it will try to attach the terminal to that container.
+### How to choose the ROS metapackage <a name="how-to-choose-the-ros-metapackage"></a>
+ To force to build ros-robot, run: 
+```
+  ./noah_dev.sh -r
+```
+
+If you need instead desktop-full:
+```
+  ./noah_dev.sh -d
+```
+
+### Automatic mode <a name="automatic-mode"></a>
+ You can run the script withouth parameters:
+
 ```
   ./noah_dev.sh
 ```
+It will execute the following actions:
+ - First it checks your hardware.
+ - Once it got the data, it will try to launch the container that suits your configuration.
+ - If it doesn't find it, it will try to build the **base_image** and the **ros_image** on top of that. After that it will run the container.
+   - If your hardware is ARM or it has an amount of ram below 5GB it will build ROS Robot, otherwise it will build ROS Desktop (you can force this behavior -r or -d).
+   - If it detects the NVIDIA GPU, it will create a container so you can use it.
+ - If the image is already built, it will try to run it.
+ - If the image is already running, it will try to attach to it.
+
+### Manual mode <a name="automatic_mode"></a>
+ You have several options when running the script:
 
 - For building the container:
 ```
@@ -46,12 +90,12 @@ In order to start the docker container, you must run the noah_dev.sh script. The
 
 - For running the container:
 ```
-  ./noah_dev.sh -r
+  ./noah_dev.sh -s
 ```
 
 - If you want to delete the container:
 ```
-  ./noah_dev.sh -d
+  ./noah_dev.sh -e
 ```
 
 - If there is an image running and want to attach another shell to it:
@@ -59,17 +103,18 @@ In order to start the docker container, you must run the noah_dev.sh script. The
   ./noah_dev.sh -a
 ```
 
-- If you want to start from zero (build everything again) do this:
+- If you want to start from zero (delete all the images and build everything again) do this:
 ```
   ./noah_dev.sh -z
 ```
 
-## 🎈 TODO <a name="todo"></a>
+## Tested on <a name="tested"></a>
 
-- Implement Support for Nvidia
-- Test X11
+- Raspberry PI3 with Rasbian Buster (32 bits)
+- Jetson nano
+- Asus GL503 running ubuntu 18.04
 
-## ✍️ Authors <a name = "authors"></a>
+## Authors <a name="authors"></a>
 
 - [Gonzalo Cervetti](https://github.com/GonzaCerv) - Idea & Initial work
 

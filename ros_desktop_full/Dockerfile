@@ -1,0 +1,52 @@
+# This dockerfile will be based on Ubuntu 18.04 with OpenGL installed
+FROM noah/base_buster as noah_base_image_ros
+ENV ROS1_DISTRO="melodic"
+USER root
+
+# Setup sources.list for ROS
+RUN echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list
+
+# Setup keys for ROS
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+
+# Install ROS packages
+RUN apt-get update && \
+    apt-get install -y \
+    ros-${ROS1_DISTRO}-desktop \
+    && \
+    apt-get clean && \
+    apt-get autoremove && \
+    apt-get autoclean && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /usr/share/doc
+
+# Install Dependencies for working with ROS
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    libxmlrpcpp-dev \
+    librosconsole-dev \
+    python-rosdep \
+    python-rosinstall-generator \
+    python-wstool \ 
+    python-rosinstall \
+    python-rosinstall \
+    ros-melodic-teleop-twist-keyboard
+
+# Initialize rosdep
+RUN rosdep init
+RUN pip install --upgrade pip
+USER docker
+RUN rosdep update
+
+# Read the arguments
+ARG ROS_HOST="localhost"
+ARG ROS_URI="http://localhost:11311"
+ARG PORT=11311
+EXPOSE ${PORT}
+
+# modify bashrc
+RUN echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
+RUN echo "export ROS_HOSTNAME=${ROS_HOST}" >> ~/.bashrc 
+RUN echo "export ROS_MASTER_URI=${ROS_URI}" >> ~/.bashrc 
+
+# Workspaces
+RUN mkdir -p /home/docker/noah_ws/src
