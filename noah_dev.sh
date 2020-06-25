@@ -89,10 +89,16 @@ delete_image() {
 
 #Builds the new image
 build_image() {
+    # Select the propper arguments for mdns server
     DOCKER_ARGS_OPT="$DOCKER_ARGS_OPT \
-    --build-arg ROS_HOST=${ROS_HOSTNAME} \
-    --build-arg ROS_URI=${ROS_MASTER_URI} \
-    --build-arg PORT=${ROS_PORT}"
+        --build-arg ROS_URI=${ROS_MASTER_URI} \
+        --build-arg PORT=${ROS_PORT}"
+
+    if [[ $ROS_IMAGE == "ros_desktop_full" ]]; then
+        DOCKER_ARGS_OPT="$DOCKER_ARGS_OPT --build-arg ROS_HOST=${ROS_HOSTNAME_DEVEL}"
+    else
+        DOCKER_ARGS_OPT="$DOCKER_ARGS_OPT --build-arg ROS_HOST=${ROS_HOSTNAME_ROBOT}"
+    fi
 
     # Build base image.
     if [[ "$(docker images -q $BASE_IMAGE_NAME 2>/dev/null)" == "" ]]; then
@@ -127,7 +133,6 @@ run_image() {
 
         # List all environment arguments
         DOCKER_ENV_ARGS="\
-        -e ROS_HOSTNAME=localhost \
         -e XAUTHORITY=$XAUTH \
         -e DISPLAY=$DISPLAY"
 
@@ -200,9 +205,6 @@ detect_capabilities
 # source file if exists
 if [[ "$(ls | grep vars.cfg 2>/dev/null)" != "" ]]; then
     source vars.cfg
-    echo "ROS_PORT: ${ROS_PORT}" >&2
-    echo "ROS_HOSTNAME: ${ROS_HOSTNAME}" >&2
-    echo "ROS_MASTER_URI: ${ROS_MASTER_URI}" >&2
 fi
 
 # Execute the ACTION defined in the commands. If no action

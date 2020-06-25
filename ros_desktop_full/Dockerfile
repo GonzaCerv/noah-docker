@@ -25,9 +25,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     libxmlrpcpp-dev \
     librosconsole-dev \
     python-rosdep \
-    python-rosinstall-generator \
-    python-wstool \ 
-    python-rosinstall \
     python-rosinstall \
     ros-melodic-teleop-twist-keyboard
 
@@ -45,8 +42,34 @@ EXPOSE ${PORT}
 
 # modify bashrc
 RUN echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
-RUN echo "export ROS_HOSTNAME=${ROS_HOST}" >> ~/.bashrc 
+RUN echo "export ROS_HOSTNAME=${ROS_HOST}.local" >> ~/.bashrc 
+RUN echo "export ROS_IP=${ROS_HOST}.local" >> ~/.bashrc 
 RUN echo "export ROS_MASTER_URI=${ROS_URI}" >> ~/.bashrc 
 
-# Workspaces
+# Workspace
 RUN mkdir -p /home/docker/noah_ws/src
+
+####################################################
+# Create a layer and setup mDNS
+# https://github.com/Jack12816/docker-mdns
+FROM noah_base_image_ros as mdns_setup
+ARG ROS_HOST="nginx"
+# Install required packages
+USER root
+RUN apt-get update -yy && \
+    apt-get install -yy \
+    avahi-daemon \
+    avahi-discover \
+    avahi-utils libnss-mdns \
+    iputils-ping dnsutils
+# Copy the script that runs the avahi daemon.
+COPY config/avahi-daemon.conf /etc/avahi/avahi-daemon.conf
+# Change the hostname of the mDNS server.
+RUN sed -i "s|nginx|${ROS_HOST} |g" /etc/avahi/avahi-daemon.conf
+COPY config/start.sh /
+RUN chmod +x /start.sh
+
+# Execute on start
+CMD sudo /start.sh && /bin/bash
+
+USER docker

@@ -23,7 +23,8 @@
 - [Usage <a name="usage"></a>](#usage)
   - [How to choose the ROS metapackage <a name="how-to-choose-the-ros-metapackage"></a>](#how-to-choose-the-ros-metapackage)
   - [Automatic mode <a name="automatic-mode"></a>](#automatic-mode)
-  - [Manual mode <a name="automatic_mode"></a>](#manual-mode)
+  - [Manual mode <a name="manual_mode"></a>](#manual-mode)
+  - [How to connect to your robot <a name="how_to_connect_to_your_robot"></a>](#how-to-connect-to-your-robot)
 - [Tested on <a name="tested"></a>](#tested-on)
 - [Authors <a name="authors"></a>](#authors)
 
@@ -38,6 +39,7 @@ This repo stores the Docker container for Noah robot. This image runs ubuntu 18.
 - ROS Melodic (Robot and Full metapackage)
 - CUDA enabled (for Nvidia containers)
 - [libserial](https://github.com/crayzeewulf/libserial)
+- mDNS ready: The docker comes with avahi daemon installed. This is useful to find your robot in the network without using static IPs.
 - Integrated and Nvidia GPU support for ARM and x86_64
 - SSH enabled
 - Automated script for easy use
@@ -64,7 +66,6 @@ If you need instead desktop-full:
 ```
   ./noah_dev.sh -d
 ```
-
 ### Automatic mode <a name="automatic-mode"></a>
  You can run the script withouth parameters:
 
@@ -80,7 +81,7 @@ It will execute the following actions:
  - If the image is already built, it will try to run it.
  - If the image is already running, it will try to attach to it.
 
-### Manual mode <a name="automatic_mode"></a>
+### Manual mode <a name="manual_mode"></a>
  You have several options when running the script:
 
 - For building the container:
@@ -107,6 +108,18 @@ It will execute the following actions:
 ```
   ./noah_dev.sh -z
 ```
+### How to connect to your robot <a name="how_to_connect_to_your_robot"></a>
+This docker comes with avahi service installed. In order to use it, you must change some lines in `vars.cfg`: 
+- Set `ROS_HOSTNAME_DEVEL` with the hostname of the PC that you want to connect to the robot (This one will have must have ROS-Desktop-full).
+- Set `ROS_HOSTNAME_ROBOT` with the hostname of the PC that is on the robot (this one has ROS-Robot).
+- Optionally, if you want to change the port, set `ROS_PORT` with the port you want to use.
+- Build both dockers and that's it!
+
+Remember that you can retrieve your hostname by running:
+```
+  hostname
+```
+
 
 ## Tested on <a name="tested"></a>
 
