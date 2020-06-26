@@ -54,9 +54,7 @@ RUN mkdir -p /home/docker/noah_ws/src
 # Create a layer and setup mDNS
 # https://github.com/Jack12816/docker-mdns
 FROM noah_base_image_ros as mdns_setup
-
-# Add hostname environment variable to .bashrc
-RUN echo "export MDNS_HOSTNAME=${ROS_HOST}" >> ~/.bashrc 
+ARG ROS_HOST="nginx"
 # Install required packages
 USER root
 RUN apt-get update -yy && \
@@ -67,10 +65,12 @@ RUN apt-get update -yy && \
     iputils-ping dnsutils
 # Copy the script that runs the avahi daemon.
 COPY config/avahi-daemon.conf /etc/avahi/avahi-daemon.conf
+# Change the hostname of the mDNS server.
+RUN sed -i "s|nginx|${ROS_HOST} |g" /etc/avahi/avahi-daemon.conf
 COPY config/start.sh /
 RUN chmod +x /start.sh
 
 # Execute on start
-CMD sudo --preserve-env=MDNS_HOSTNAME /start.sh
+CMD sudo /start.sh $(DOCKER_DNS_HOSTNAME)
 
 USER docker
