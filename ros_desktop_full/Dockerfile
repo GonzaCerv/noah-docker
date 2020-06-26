@@ -70,7 +70,6 @@ COPY config/start.sh /
 RUN chmod +x /start.sh
 
 # Execute on start
-CMD sudo /start.sh $(DOCKER_DNS_HOSTNAME)
+CMD sudo /start.sh $(DOCKER_DNS_HOSTNAME) && /bin/bash
 
 USER docker
-
