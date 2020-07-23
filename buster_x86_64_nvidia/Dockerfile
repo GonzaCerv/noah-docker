@@ -10,28 +10,23 @@ ENV NVIDIA_VISIBLE_DEVICES=all NVIDIA_DRIVER_CAPABILITIES=all
 ENV DEBIAN_FRONTEND=noninteractive
 
 ####################################################
-# Create a layer and install libserial
-FROM base_image as libserial
+# Create a layer and install seriallib
+FROM base_image as seriallib
 USER root
 RUN apt-get update && apt-get install -y \
-  g++ git autogen autoconf build-essential cmake graphviz \
+  g++ git autogen autoconf build-essential catkin cmake graphviz \
   libboost-dev libboost-test-dev libgtest-dev libtool \
   python3-sip-dev doxygen python3-sphinx pkg-config \
   python3-sphinx-rtd-theme
-RUN git clone https://github.com/crayzeewulf/libserial.git
-RUN cd libserial/ &&  ./compile.sh && cd build/ && make install
+RUN git clone https://github.com/wjwwood/serial.git
+RUN cd serial/ &&  make && make install
 
 ####################################################
 # Layer for environment variables and basic packages
 FROM base_image as base_image_with_extra_packages
 
-# Copy libserial from libserial layer into the new image.
-COPY --from=libserial /usr/local/lib/libserial.a /usr/local/lib/
-COPY --from=libserial /usr/local/lib/libserialmod.so /usr/local/lib/
-COPY --from=libserial /usr/local/lib/libserial.so /usr/local/lib/
-COPY --from=libserial /usr/local/lib/libserial.so.1 /usr/local/lib/
-COPY --from=libserial /usr/local/lib/libserial.so.1.0.0 /usr/local/lib/
-COPY --from=libserial /usr/local/include/libserial/ /usr/local/include/libserial/
+# Copy seriallib from seriallib layer into the new image.
+COPY --from=seriallib tmp/usr/local/ /usr/local/
 
 # Environment variables and basic packages
 RUN apt-get update && apt-get install -y \
