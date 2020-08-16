@@ -74,3 +74,6 @@ RUN echo "\ndocker    ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers && /usr/sbin/v
 
 # Open serial ports without sudo
 RUN usermod -a -G dialout docker
+
+# Get access to camera features
+RUN usermod -a -G video docker

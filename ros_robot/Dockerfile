@@ -27,7 +27,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     python-rosdep \
     python-rosinstall \
     ros-melodic-rospy-tutorials \
-    ros-melodic-teleop-twist-keyboard
+    ros-melodic-teleop-twist-keyboard \
+    ros-melodic-usb-cam
 
 # Initialize rosdep
 RUN rosdep init
