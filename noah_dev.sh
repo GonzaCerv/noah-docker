@@ -143,6 +143,12 @@ run_image() {
         --cap-add=sys_nice \
         -p 5901:5901"
 
+        # Gave access to cameras if present
+        if [ -f /dev/video0 ] ; then
+            echo "Enabling access to camera" 1>&2
+            DOCKER_CAPABILITIES="$DOCKER_CAPABILITIES --device=/dev/video0:/dev/video0"
+        fi
+
         DOCKER_NETWORK="--net=host"
         # Start Docker container
         xhost +
