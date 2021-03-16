@@ -8,7 +8,7 @@
 <div align="center">
 
 [![Status](https://img.shields.io/badge/status-active-success.svg)]()
-[![License](https://img.shields.io/badge/license-GPL-blue.svg)](/LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](/LICENSE)
 
 </div>
 
@@ -17,16 +17,16 @@
 ##  Table of Contents
 
 - [Table of Contents](#table-of-contents)
-- [About <a name = "about"></a>](#about)
-- [Main Features <a name = "about"></a>](#main-features)
-- [Prerequisites <a name="prerequisites"></a>](#prerequisites)
-- [Usage <a name="usage"></a>](#usage)
-  - [How to choose the ROS metapackage <a name="how-to-choose-the-ros-metapackage"></a>](#how-to-choose-the-ros-metapackage)
-  - [Automatic mode <a name="automatic-mode"></a>](#automatic-mode)
-  - [Manual mode <a name="manual_mode"></a>](#manual-mode)
-  - [How to connect to your robot <a name="how_to_connect_to_your_robot"></a>](#how-to-connect-to-your-robot)
-- [Tested on <a name="tested"></a>](#tested-on)
-- [Authors <a name="authors"></a>](#authors)
+- [About <a name = "about"></a>](#about-)
+- [Main Features <a name = "about"></a>](#main-features-)
+- [Prerequisites <a name="prerequisites"></a>](#prerequisites-)
+- [Usage <a name="usage"></a>](#usage-)
+  - [How to choose the ROS metapackage <a name="how-to-choose-the-ros-metapackage"></a>](#how-to-choose-the-ros-metapackage-)
+  - [Automatic mode <a name="automatic-mode"></a>](#automatic-mode-)
+  - [Manual mode <a name="manual_mode"></a>](#manual-mode-)
+  - [How to connect to your robot <a name="how_to_connect_to_your_robot"></a>](#how-to-connect-to-your-robot-)
+- [Tested on <a name="tested"></a>](#tested-on-)
+- [Authors <a name="authors"></a>](#authors-)
 
 ## About <a name = "about"></a>
 
