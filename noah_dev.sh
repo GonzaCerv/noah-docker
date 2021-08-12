@@ -92,7 +92,8 @@ build_image() {
     # Select the propper arguments for mdns server
     DOCKER_ARGS_OPT="$DOCKER_ARGS_OPT \
         --build-arg ROS_URI=${ROS_MASTER_URI} \
-        --build-arg PORT=${ROS_PORT}"
+        --build-arg PORT=${ROS_PORT} \
+        --build-arg UID=$(id -u)"
 
     if [[ $ROS_IMAGE == "ros_desktop_full" ]]; then
         DOCKER_ARGS_OPT="$DOCKER_ARGS_OPT --build-arg ROS_HOST=${ROS_HOSTNAME_DEVEL}"
